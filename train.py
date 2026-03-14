@@ -51,7 +51,7 @@ IMAGE_WIDTH = 128
 IMAGE_HEIGHT = 64
 
 BATCH_SIZE = 64
-LEARNING_RATE = 4e-4
+LEARNING_RATE = 1e-4
 EPOCHS = 20
 
 # the percentage of the training data to set aside as a validation set.
