@@ -68,18 +68,35 @@ def load_and_transform_image(path):
 class ColemanCNN(nn.Module):
     def __init__(self, input_dim, num_classes):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, padding=1)
+        C1, K1, P1 = 32,  3, 1
+        C2, K2, P2 = 64,  3, 1
+        C3, K3, P3 = 128, 3, 1
+        self.conv1 = nn.Conv2d(3,  C1, kernel_size=K1, padding=P1)
+        self.bn1 = nn.BatchNorm2d(C1)
         self.pool1 = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(64, 32, kernel_size=9, padding=1)
+        self.conv2 = nn.Conv2d(C1, C2, kernel_size=K2, padding=P2)
+        self.bn2 = nn.BatchNorm2d(C2)
         self.pool2 = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(32 * (13) * (5), 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.conv3 = nn.Conv2d(C2, C3, kernel_size=K3, padding=P3)
+        self.bn3 = nn.BatchNorm2d(C3)
+        self.pool3 = nn.MaxPool2d(2, 2)
+        h1 = ((IMAGE_HEIGHT + 2*P1 - K1) + 1) // 2
+        w1 = ((IMAGE_WIDTH  + 2*P1 - K1) + 1) // 2
+        h2 = ((h1 + 2*P2 - K2) + 1) // 2
+        w2 = ((w1 + 2*P2 - K2) + 1) // 2
+        h3 = ((h2 + 2*P3 - K3) + 1) // 2
+        w3 = ((w2 + 2*P3 - K3) + 1) // 2
+        self.fc1 = nn.Linear(C3 * h3 * w3, 256)
+        self.bn4 = nn.BatchNorm1d(256)
+        self.dropout = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(256, num_classes)
 
     def forward(self, x):
-        x = self.pool1(torch.relu(self.conv1(x)))
-        x = self.pool2(torch.relu(self.conv2(x)))
-        x = x.view(x.size(0), -1)  # flatten
-        x = torch.relu(self.fc1(x))
+        x = self.pool1(self.bn1(torch.relu(self.conv1(x))))
+        x = self.pool2(self.bn2(torch.relu(self.conv2(x))))
+        x = self.pool3(self.bn3(torch.relu(self.conv3(x))))
+        x = x.view(x.size(0), -1)
+        x = self.dropout(self.bn4(torch.relu(self.fc1(x))))
         return self.fc2(x)
 
 # class LogisticRegression(nn.Module):
@@ -113,16 +130,18 @@ def predict(test_dir):
     test_dir = pathlib.Path(test_dir)
 
     # Step 1) load the trained model.
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     input_dim = 3 * IMAGE_WIDTH * IMAGE_HEIGHT
     model = ColemanCNN(input_dim, len(CLASSES))
-    model.load_state_dict(torch.load("model.pt", weights_only=True))
+    model.load_state_dict(torch.load("model.pt", weights_only=True, map_location=device))
+    model.to(device)
     model.eval()
 
     # Step 2) run prediction on every test image.
     predictions = {}
     with torch.no_grad():
         for path in sorted(test_dir.glob("*.jpg")):
-            image = load_and_transform_image(path)
+            image = load_and_transform_image(path).to(device)
             output = model(image)
             predicted_index = output.argmax(dim=1).item()
             predictions[path.name] = CLASSES[predicted_index]

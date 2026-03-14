@@ -13,6 +13,7 @@ starting point if you want.
 
 """
 
+import csv
 import pathlib
 
 import torch
@@ -20,7 +21,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 from PIL import Image
-# from tqdm import trange
+from tqdm import trange
 
 
 # configuration ------------------------------------------------------------------------
@@ -184,7 +185,11 @@ def main():
 
     # Step 4) the training loop.
 
-    for epoch in range(EPOCHS):
+    log_file = open("metrics.csv", "w", newline="")
+    writer = csv.DictWriter(log_file, fieldnames=["epoch", "loss", "accuracy", "val_accuracy"])
+    writer.writeheader()
+
+    for epoch in trange(EPOCHS):
         total_loss = 0.0
         correct = 0
         total = 0
@@ -224,7 +229,10 @@ def main():
             f"accuracy: {accuracy:.4f}  "
             f"val_accuracy: {val_accuracy:.4f}"
         )
+        writer.writerow({"epoch": epoch + 1, "loss": avg_loss, "accuracy": accuracy, "val_accuracy": val_accuracy})
+        log_file.flush()
 
+    log_file.close()
     torch.save(model.state_dict(), "model.pt")
     print("Saved model to model.pt")
 
