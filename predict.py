@@ -34,8 +34,8 @@ CLASSES = sorted(
 # when we trained the model, we resized all images to this size before feeding them into
 # the model. We need to do the same thing here, since the model's weights were trained
 # on images of this size.
-IMAGE_WIDTH = 64
-IMAGE_HEIGHT = 32
+IMAGE_WIDTH = 128
+IMAGE_HEIGHT = 64
 
 
 def load_and_transform_image(path):
