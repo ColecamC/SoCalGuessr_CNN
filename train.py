@@ -162,8 +162,11 @@ def main():
     # which is commonly used for multi-class classification problems. The optimizer is
     # Adam.
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
     input_dim = 3 * IMAGE_WIDTH * IMAGE_HEIGHT  # channels x height x width
-    model = ColemanCNN(input_dim, len(CLASSES))
+    model = ColemanCNN(input_dim, len(CLASSES)).to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -176,6 +179,7 @@ def main():
         total = 0
 
         for images, labels in train_loader:
+            images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             loss = criterion(outputs, labels)
 
@@ -196,6 +200,7 @@ def main():
         val_total = 0
         with torch.no_grad():
             for images, labels in val_loader:
+                images, labels = images.to(device), labels.to(device)
                 outputs = model(images)
                 val_correct += (outputs.argmax(dim=1) == labels).sum().item()
                 val_total += images.size(0)
