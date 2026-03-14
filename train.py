@@ -111,8 +111,8 @@ class ColemanCNN(nn.Module):
         w1 = ((IMAGE_WIDTH + 2*P1 - K1) + 1) // 2
         h2 = ((h1 + 2*P2 - K2) + 1) // 2
         w2 = ((w1 + 2*P2 - K2) + 1) // 2
-        self.fc1 = nn.Linear(C2 * h2 * w2, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc1 = nn.Linear(C2 * h2 * w2, 32)
+        self.fc2 = nn.Linear(32, num_classes)
 
     def forward(self, x):
         x = self.pool1(torch.relu(self.conv1(x)))
