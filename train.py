@@ -105,13 +105,13 @@ class ColemanCNN(nn.Module):
         C2, K2, P2 = 64,  3, 1
         C3, K3, P3 = 128, 3, 1
         self.conv1 = nn.Conv2d(3,  C1, kernel_size=K1, padding=P1)
-        self.bn1   = nn.BatchNorm2d(C1)
+        self.bn1 = nn.BatchNorm2d(C1)
         self.pool1 = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(C1, C2, kernel_size=K2, padding=P2)
-        self.bn2   = nn.BatchNorm2d(C2)
+        self.bn2 = nn.BatchNorm2d(C2)
         self.pool2 = nn.MaxPool2d(2, 2)
         self.conv3 = nn.Conv2d(C2, C3, kernel_size=K3, padding=P3)
-        self.bn3   = nn.BatchNorm2d(C3)
+        self.bn3 = nn.BatchNorm2d(C3)
         self.pool3 = nn.MaxPool2d(2, 2)
         h1 = ((IMAGE_HEIGHT + 2*P1 - K1) + 1) // 2
         w1 = ((IMAGE_WIDTH  + 2*P1 - K1) + 1) // 2
@@ -119,10 +119,10 @@ class ColemanCNN(nn.Module):
         w2 = ((w1 + 2*P2 - K2) + 1) // 2
         h3 = ((h2 + 2*P3 - K3) + 1) // 2
         w3 = ((w2 + 2*P3 - K3) + 1) // 2
-        self.fc1     = nn.Linear(C3 * h3 * w3, 256)
-        self.bn4     = nn.BatchNorm1d(256)
+        self.fc1 = nn.Linear(C3 * h3 * w3, 256)
+        self.bn4 = nn.BatchNorm1d(256)
         self.dropout = nn.Dropout(0.5)
-        self.fc2     = nn.Linear(256, num_classes)
+        self.fc2 = nn.Linear(256, num_classes)
 
     def forward(self, x):
         x = self.pool1(self.bn1(torch.relu(self.conv1(x))))
