@@ -47,11 +47,11 @@ CLASS_TO_NUMBER = {name: i for i, name in enumerate(CLASSES)}
 # we'll resize all images to this size before feeding them into the model smaller image
 # sizes means fewer parameters and therefore faster training, but also less information
 # for the model to learn from
-IMAGE_WIDTH = 64
-IMAGE_HEIGHT = 32
+IMAGE_WIDTH = 128
+IMAGE_HEIGHT = 64
 
 BATCH_SIZE = 64
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 4e-4
 EPOCHS = 20
 
 # the percentage of the training data to set aside as a validation set.
