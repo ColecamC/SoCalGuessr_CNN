@@ -53,7 +53,7 @@ IMAGE_HEIGHT = 64
 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-4
-EPOCHS = 20
+EPOCHS = 50
 
 # the percentage of the training data to set aside as a validation set.
 VALIDATION_FRACTION = 0.2
@@ -223,12 +223,12 @@ def main():
         val_accuracy = val_correct / val_total
         model.train()
 
-        print(
-            f"Epoch {epoch + 1}/{EPOCHS}  "
-            f"loss: {avg_loss:.4f}  "
-            f"accuracy: {accuracy:.4f}  "
-            f"val_accuracy: {val_accuracy:.4f}"
-        )
+        # print(
+        #     f"Epoch {epoch + 1}/{EPOCHS}  "
+        #     f"loss: {avg_loss:.4f}  "
+        #     f"accuracy: {accuracy:.4f}  "
+        #     f"val_accuracy: {val_accuracy:.4f}"
+        # )
         writer.writerow({"epoch": epoch + 1, "loss": avg_loss, "accuracy": accuracy, "val_accuracy": val_accuracy})
         log_file.flush()
 
