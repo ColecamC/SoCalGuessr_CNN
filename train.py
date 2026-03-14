@@ -104,21 +104,24 @@ class ColemanCNN(nn.Module):
         C1, K1, P1, = 20, 6, 1
         C2, K2, P2 = 40, 12, 1
         self.conv1 = nn.Conv2d(3, C1, kernel_size=K1, padding=P1)
+        self.bn1 = nn.BatchNorm2d(C1)
         self.pool1 = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(C1, C2, kernel_size=K2, padding=P2)
+        self.bn2 = nn.BatchNorm2d(C2)
         self.pool2 = nn.MaxPool2d(2, 2)
         h1 = ((IMAGE_HEIGHT + 2*P1 - K1) + 1) // 2
         w1 = ((IMAGE_WIDTH + 2*P1 - K1) + 1) // 2
         h2 = ((h1 + 2*P2 - K2) + 1) // 2
         w2 = ((w1 + 2*P2 - K2) + 1) // 2
         self.fc1 = nn.Linear(C2 * h2 * w2, 32)
+        self.bn3 = nn.BatchNorm1d(32)
         self.fc2 = nn.Linear(32, num_classes)
 
     def forward(self, x):
-        x = self.pool1(torch.relu(self.conv1(x)))
-        x = self.pool2(torch.relu(self.conv2(x)))
+        x = self.pool1(self.bn1(torch.relu(self.conv1(x))))
+        x = self.pool2(self.bn2(torch.relu(self.conv2(x))))
         x = x.view(x.size(0), -1)  # flatten
-        x = torch.relu(self.fc1(x))
+        x = self.bn3(torch.relu(self.fc1(x)))
         return self.fc2(x)
 
 # class LogisticRegression(nn.Module):
@@ -163,7 +166,7 @@ def main():
     # Adam.
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    # print(f"Using device: {device}")
 
     input_dim = 3 * IMAGE_WIDTH * IMAGE_HEIGHT  # channels x height x width
     model = ColemanCNN(input_dim, len(CLASSES)).to(device)
